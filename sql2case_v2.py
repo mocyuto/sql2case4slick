@@ -15,7 +15,7 @@ class Table:
         m = r_table.match(q)
         self.tableName = m.group(1)
         self.columnSeq = m.group(2).split(",")
-        self.camelTable = snake2camel(self.tableName)
+        self.camelTable = classCamel(self.tableName)
 
     def caseClass(self):
         print "case class " + self.camelTable + caseSuffix + "("
@@ -34,14 +34,14 @@ class Table:
 
     def tableTag(self):
         print "class " + self.camelTable + "Table(tag: Tag) extends Table[" + self.camelTable + caseSuffix +"](tag, \"" + self.tableName + "\") {"
-            
+
         for i,elem in enumerate(self.columnSeq):
             columnName, dataType = columnData(elem)
             if dataType != "":
                 print "  def " + snake2camel(columnName) + ": Column[" + dataType + "] = column[" + dataType + "](\"" + columnName + "\")"
-            
-        columns = [columnData(x)[0] for x in self.columnSeq if columnData(x)[1] != ""]
-        print "def * = (" + ",".join(columns) + ")<>(" + self.camelTable + caseSuffix + ".tuppled, " + self.camelTable + caseSuffix + ".unapply)"
+
+        columns = [snake2camel(columnData(x)[0]) for x in self.columnSeq if columnData(x)[1] != ""]
+        print "def * = (" + ",".join(columns) + ")<>(" + self.camelTable + caseSuffix + ".tupled, " + self.camelTable + caseSuffix + ".unapply)"
         print "}"
 
     def getTableName(self):
@@ -53,6 +53,10 @@ class Table:
 
 def snake2camel(string):
     return re.sub("_(.)",lambda x:x.group(1).upper(),string)
+
+def classCamel(string):
+    string = string[0].upper() + string [1:]
+    return snake2camel(string)
 
 def columnData(elem):
     columnItems = elem.split()
